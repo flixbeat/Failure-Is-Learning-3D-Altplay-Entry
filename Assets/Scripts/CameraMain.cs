@@ -26,7 +26,7 @@ public class CameraMain : MonoBehaviour
             transform.position = player.transform.position + offset;
     }
 
-    public void ZoomOut()
+    private void ZoomOut()
     {
         Vector3 startPos = transform.position;
         Vector3 endPos = zoomOutPoint;
@@ -36,6 +36,7 @@ public class CameraMain : MonoBehaviour
 
     private void ZoomOut(Vector3 startPos, Vector3 endPos, bool isSecondZoom)
     {
+        print("isSecondZoom: " + isSecondZoom);
         Func<float, float> tsf = isSecondZoom ? TweenScaleFunctions.SineEaseIn : TweenScaleFunctions.SineEaseOut;
         float duration = isSecondZoom ? 0.6f : 2f;
 

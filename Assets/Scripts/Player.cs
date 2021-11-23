@@ -15,7 +15,6 @@ public class Player : MonoBehaviour
     private Rigidbody rb;
     private bool allowJump;
     
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
