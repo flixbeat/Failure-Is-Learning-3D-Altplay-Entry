@@ -9,9 +9,12 @@ public class Player : MonoBehaviour
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpUpwardForce = 5f;
     [SerializeField] private float jumpForwardForce = 3f;
+    
     [HideInInspector] public bool isActive;
+    
     private Rigidbody rb;
-    private int jumpCount;
+    private bool allowJump;
+    
 
     private void Awake()
     {
@@ -25,27 +28,22 @@ public class Player : MonoBehaviour
             return;
         
         transform.Translate(Vector3.forward * Time.deltaTime * speed);
-        ProcessInput();
     }
 
-    private void ProcessInput()
-    {
-        if (Input.GetMouseButtonDown(0))
-            Jump();
-    }
 
-    private void Jump()
+    public void Jump()
     {
-        // allows double jump
-        jumpCount += 1;
-        if (jumpCount > 1) jumpForwardForce = 0;
-        if (jumpCount < 3) rb.AddForce(new Vector3(0, jumpUpwardForce, jumpForwardForce), ForceMode.Impulse);
+        if (allowJump)
+        {
+            rb.AddForce(new Vector3(0, jumpUpwardForce, jumpForwardForce), ForceMode.Impulse);
+            allowJump = false;
+        }
     }
 
     // collides with platform
     private void OnCollisionEnter(Collision other)
     {
-        jumpCount = 0;
+        allowJump = true;
     }
     
     public void Out()
@@ -66,5 +64,11 @@ public class Player : MonoBehaviour
     {
         isActive = true;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
+    }
+
+    public void Reset()
+    {
+        transform.position = Vector3.zero;
+        Unfreeze();
     }
 }
