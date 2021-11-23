@@ -9,7 +9,7 @@ public class CameraMain : MonoBehaviour
     public static Action zoomOut;
     
     [SerializeField] private Player player;
-    private readonly Vector3 zoomOutPoint = new Vector3(45, 69, -185);
+    private readonly Vector3 zoomOutPoint = new Vector3(188, 294, -793);
     private Vector3 initialPos;
     private Vector3 offset;
     
@@ -36,7 +36,6 @@ public class CameraMain : MonoBehaviour
 
     private void ZoomOut(Vector3 startPos, Vector3 endPos, bool isSecondZoom)
     {
-        print("isSecondZoom: " + isSecondZoom);
         Func<float, float> tsf = isSecondZoom ? TweenScaleFunctions.SineEaseIn : TweenScaleFunctions.SineEaseOut;
         float duration = isSecondZoom ? 0.6f : 2f;
 
