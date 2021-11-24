@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public static Action startGame;
     public static Action endGame;
     public static Action backToTitleScreen;
+    public static Action<int> loadGame;
     
     public static bool changeLevel;
     
@@ -30,6 +31,7 @@ public class GameManager : MonoBehaviour
         startGame = StartGame;
         endGame = EndGame;
         backToTitleScreen = BackToTitleScreen;
+        loadGame = LoadGame;
         playerScript = player.GetComponent<Player>();
     }
 
@@ -44,6 +46,7 @@ public class GameManager : MonoBehaviour
             InstantiateLevel(currentLevel);
             canvasUI.RestoreLife();
             changeLevel = false;
+            SaveLevel();
             
             while(inactivePlayers.Count > 0)
                 Destroy(inactivePlayers.Dequeue());
@@ -69,6 +72,12 @@ public class GameManager : MonoBehaviour
 
     private void InstantiateLevel(int levelIdx)
     {
+        if (levelIdx > levels.Count-1)
+        {
+            canvasUI.ShowFinishScreen();
+            return;
+        }
+        
         level = Instantiate(levels[levelIdx], levels[levelIdx].transform.position, Quaternion.identity);
     }
 
@@ -99,11 +108,27 @@ public class GameManager : MonoBehaviour
     {
         currentLevel = 0;
         InstantiateLevel(currentLevel);
+        Begin();
+
+        if (!PlayerPrefs.HasKey("level"))
+            SaveLevel();
+    }
+
+    private void LoadGame(int level)
+    {
+        currentLevel = level;
+        InstantiateLevel(currentLevel);
+        Begin();
+    }
+
+    private void Begin()
+    {
         playerScript.IsActive = true;
         playerScript.Unfreeze();
         canvasUI.ShowMenuBar();
         canvasUI.RestoreLife();
         stuckTimePassed = 0;
+        canvasUI.HideTitleScreen();
     }
 
     private void EndGame()
@@ -114,6 +139,17 @@ public class GameManager : MonoBehaviour
     private void BackToTitleScreen()
     {
         canvasUI.ShowTitleScreen();
+    }
+
+    private void SaveLevel()
+    {
+        int latestLevel = PlayerPrefs.GetInt("level");
+
+        if (currentLevel >= latestLevel || !PlayerPrefs.HasKey("level"))
+        {
+            PlayerPrefs.SetInt("level", currentLevel);
+            PlayerPrefs.Save();
+        }
     }
 
 }

@@ -9,6 +9,7 @@ public class CanvasUI : MonoBehaviour
     [SerializeField] private Transform stuckPanel;
     [SerializeField] private MenuBar menuBar;
     [SerializeField] private GameOver gameOver;
+    [SerializeField] private GameOver finish;
     [SerializeField] private TitleScreen titleScreen;
     
     public void ShowStuckPanel()
@@ -52,4 +53,17 @@ public class CanvasUI : MonoBehaviour
         titleScreen.gameObject.SetActive(true);
         gameOver.gameObject.SetActive(false);
     }
+    
+    public void HideTitleScreen()
+    {
+        titleScreen.gameObject.SetActive(false);
+    }
+
+    public void ShowFinishScreen()
+    {
+        finish.gameObject.SetActive(true);
+        HideMenuBar();
+    }
+
+    
 }
