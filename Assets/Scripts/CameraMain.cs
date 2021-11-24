@@ -31,6 +31,7 @@ public class CameraMain : MonoBehaviour
         Vector3 startPos = transform.position;
         Vector3 endPos = zoomOutPoint;
 
+        GameManager.playZoomSFX.Invoke();
         ZoomOut(startPos, endPos, false);
     }
 
@@ -41,23 +42,21 @@ public class CameraMain : MonoBehaviour
 
         void UpdateZ(ITween<Vector3> t)
         {
+            // catches missing reference exception after changing scene
             try
             {
                 Vector3 newPos = t.CurrentValue;
                 transform.localPosition = newPos;
             }
-            catch (Exception e)
-            {
-                //Console.WriteLine(e);
-                //throw;
-            }
-           
+            catch (Exception e) { }
         }
 
         void FinishZoom(ITween t)
         {
             if (isSecondZoom)
             {
+                GameManager.resumeBGM.Invoke();
+                
                 if (MenuBar.lifeCount == -1)
                     return;
                 

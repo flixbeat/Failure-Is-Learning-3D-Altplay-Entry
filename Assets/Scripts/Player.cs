@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     private bool isActive;
     
     private Rigidbody rb;
+    private AudioSource jump;
     private bool allowJump;
 
     public bool IsActive
@@ -24,6 +25,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        jump = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -41,6 +43,7 @@ public class Player : MonoBehaviour
         {
             rb.AddForce(new Vector3(0, jumpUpwardForce, jumpForwardForce), ForceMode.Impulse);
             allowJump = false;
+            jump.Play();
         }
     }
 
@@ -67,6 +70,7 @@ public class Player : MonoBehaviour
     public void Unfreeze()
     {
         IsActive = true;
+        jump.enabled = true;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 

@@ -20,7 +20,13 @@ public class GameOver : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
     
+    // delay the display of buttons, can be configured
     IEnumerator DelayButtons()
     {
         btnPlayAgain.gameObject.SetActive(false);

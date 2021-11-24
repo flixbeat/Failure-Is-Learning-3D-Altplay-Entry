@@ -22,8 +22,7 @@ public class LevelSelect : MonoBehaviour
 
     private void LoadUnlockedLevels()
     {
-        int levels = PlayerPrefs.GetInt("level");
-        print(levels);
+        int levels = PlayerPrefs.GetInt("level") + 1;
         for (int i = 0; i < levels; i++)
             levelContainer.GetChild(i).GetComponent<Button>().interactable = true;
     }

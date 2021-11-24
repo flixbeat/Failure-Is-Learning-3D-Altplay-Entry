@@ -2,14 +2,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static Action respawn;
     public static Action startGame;
     public static Action endGame;
-    public static Action backToTitleScreen;
     public static Action<int> loadGame;
+    public static Action respawn;
+
+    public static Action toTitleScreen;
+    public static Action playZoomSFX;
+    public static Action resumeBGM;
     
     public static bool changeLevel;
     
@@ -17,7 +21,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CameraMain cameraMain;
     [SerializeField] private CanvasUI canvasUI;
     [SerializeField] private List<GameObject> levels = new List<GameObject>();
-
+    [SerializeField] private AudioSource bgm;
+    [SerializeField] private AudioSource zoom;
+    
     private Queue<GameObject> inactivePlayers = new Queue<GameObject>();
     private Player playerScript;
     private int playerlastZ;
@@ -30,8 +36,10 @@ public class GameManager : MonoBehaviour
         respawn = Respawn;
         startGame = StartGame;
         endGame = EndGame;
-        backToTitleScreen = BackToTitleScreen;
         loadGame = LoadGame;
+        toTitleScreen = BackToTitleScreen;
+        playZoomSFX = PlayZoomSFX;
+        resumeBGM = ResumeBGM;
         playerScript = player.GetComponent<Player>();
     }
 
@@ -39,6 +47,7 @@ public class GameManager : MonoBehaviour
     {
         inactivePlayers.Enqueue(this.player);
         
+        // when changing level
         if (changeLevel)
         {
             Destroy(level);
@@ -54,6 +63,7 @@ public class GameManager : MonoBehaviour
         else
             canvasUI.DeductLife();
         
+        // respawn
         Transform playerInstance = Instantiate(this.player, Vector3.zero, Quaternion.identity).transform;
         Player player = playerInstance.GetComponent<Player>();
         player.enabled = true;
@@ -72,6 +82,7 @@ public class GameManager : MonoBehaviour
 
     private void InstantiateLevel(int levelIdx)
     {
+        // show finish screen when last level reached
         if (levelIdx > levels.Count-1)
         {
             canvasUI.ShowFinishScreen();
@@ -93,6 +104,7 @@ public class GameManager : MonoBehaviour
         if (!playerScript.IsActive)
             return;
 
+        // check if z position is not moving
         if (stuckTimePassed > 1)
         {
             int z = (int) player.transform.position.z;
@@ -136,20 +148,37 @@ public class GameManager : MonoBehaviour
         canvasUI.ShowGameOver();
     }
 
-    private void BackToTitleScreen()
-    {
-        canvasUI.ShowTitleScreen();
-    }
-
     private void SaveLevel()
     {
+        // prevent saving level higher than actual number of levels
+        if (currentLevel >= levels.Count)
+            return;
+        
+        // get save file
         int latestLevel = PlayerPrefs.GetInt("level");
 
+        // save only when current level is higher than stored level, or if there's no save file
         if (currentLevel >= latestLevel || !PlayerPrefs.HasKey("level"))
         {
             PlayerPrefs.SetInt("level", currentLevel);
             PlayerPrefs.Save();
         }
+    }
+
+    private void BackToTitleScreen()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void PlayZoomSFX()
+    {
+        bgm.Stop();
+        zoom.Play();
+    }
+
+    public void ResumeBGM()
+    {
+        bgm.Play();
     }
 
 }

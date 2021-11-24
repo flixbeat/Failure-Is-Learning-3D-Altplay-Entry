@@ -12,6 +12,11 @@ public class TitleScreen : MonoBehaviour
     {
         GameManager.startGame.Invoke();
     }
+    
+    public void Quit()
+    {
+        Application.Quit();
+    }
 
     public void ShowLevelSelect()
     {
