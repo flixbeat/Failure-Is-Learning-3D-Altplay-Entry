@@ -6,6 +6,10 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static Action respawn;
+    public static Action startGame;
+    public static Action endGame;
+    public static Action backToTitleScreen;
+    
     public static bool changeLevel;
     
     [SerializeField] private GameObject player;
@@ -14,15 +18,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<GameObject> levels = new List<GameObject>();
 
     private Queue<GameObject> inactivePlayers = new Queue<GameObject>();
+    private Player playerScript;
     private int playerlastZ;
     private float stuckTimePassed;
     private GameObject level;
     private int currentLevel;
-    
+
     private void Start()
     {
         respawn = Respawn;
-        InstantiateLevel();
+        startGame = StartGame;
+        endGame = EndGame;
+        backToTitleScreen = BackToTitleScreen;
+        playerScript = player.GetComponent<Player>();
     }
 
     private void Respawn()
@@ -32,13 +40,16 @@ public class GameManager : MonoBehaviour
         if (changeLevel)
         {
             Destroy(level);
-            currentLevel++;
-            InstantiateLevel();
+            currentLevel += 1;
+            InstantiateLevel(currentLevel);
+            canvasUI.RestoreLife();
             changeLevel = false;
-
+            
             while(inactivePlayers.Count > 0)
                 Destroy(inactivePlayers.Dequeue());
         }
+        else
+            canvasUI.DeductLife();
         
         Transform playerInstance = Instantiate(this.player, Vector3.zero, Quaternion.identity).transform;
         Player player = playerInstance.GetComponent<Player>();
@@ -47,18 +58,18 @@ public class GameManager : MonoBehaviour
         cameraMain.ChangeFocus(player);
         TouchArea.changeFocus.Invoke(player);
         this.player = player.gameObject;
+        playerScript = player;
     }
 
     public void ResetPlayer()
     {
-        Player player = this.player.GetComponent<Player>();
-        player.Reset();
+        playerScript.Reset();
         canvasUI.HideStuckPanel();
     }
 
-    private void InstantiateLevel()
+    private void InstantiateLevel(int levelIdx)
     {
-        level = Instantiate(levels[currentLevel], levels[currentLevel].transform.position, Quaternion.identity);
+        level = Instantiate(levels[levelIdx], levels[levelIdx].transform.position, Quaternion.identity);
     }
 
     private void Update()
@@ -69,13 +80,13 @@ public class GameManager : MonoBehaviour
     private void CheckIfStuck()
     {
         stuckTimePassed += Time.deltaTime;
-        
+
+        if (!playerScript.IsActive)
+            return;
+
         if (stuckTimePassed > 1)
         {
-            Player player = this.player.GetComponent<Player>();
-            if (!player.isActive) return;
-            
-            int z = (int) this.player.transform.position.z;
+            int z = (int) player.transform.position.z;
             if (playerlastZ == z)
                 canvasUI.ShowStuckPanel();
             
@@ -83,4 +94,26 @@ public class GameManager : MonoBehaviour
             stuckTimePassed = 0;
         }
     }
+
+    private void StartGame()
+    {
+        currentLevel = 0;
+        InstantiateLevel(currentLevel);
+        playerScript.IsActive = true;
+        playerScript.Unfreeze();
+        canvasUI.ShowMenuBar();
+        canvasUI.RestoreLife();
+        stuckTimePassed = 0;
+    }
+
+    private void EndGame()
+    {
+        canvasUI.ShowGameOver();
+    }
+
+    private void BackToTitleScreen()
+    {
+        canvasUI.ShowTitleScreen();
+    }
+
 }

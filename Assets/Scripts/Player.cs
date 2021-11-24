@@ -10,15 +10,20 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpUpwardForce = 5f;
     [SerializeField] private float jumpForwardForce = 3f;
     
-    [HideInInspector] public bool isActive;
+    private bool isActive;
     
     private Rigidbody rb;
     private bool allowJump;
-    
+
+    public bool IsActive
+    {
+        get => isActive;
+        set => SetActive(value);
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        isActive = true;
     }
 
     void Update()
@@ -55,13 +60,13 @@ public class Player : MonoBehaviour
 
     public void Freeze()
     {
-        isActive = false;
+        IsActive = false;
         rb.constraints = RigidbodyConstraints.FreezeAll;
     }
 
     public void Unfreeze()
     {
-        isActive = true;
+        IsActive = true;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
@@ -69,5 +74,11 @@ public class Player : MonoBehaviour
     {
         transform.position = Vector3.zero;
         Unfreeze();
+    }
+
+    private void SetActive(bool value)
+    {
+        isActive = value;
+        rb.useGravity = value;
     }
 }

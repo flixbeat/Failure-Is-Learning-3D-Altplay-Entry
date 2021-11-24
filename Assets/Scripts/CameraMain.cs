@@ -22,7 +22,7 @@ public class CameraMain : MonoBehaviour
 
     private void LateUpdate()
     {
-        if(player.isActive)
+        if(player.IsActive)
             transform.position = player.transform.position + offset;
     }
 
@@ -41,14 +41,26 @@ public class CameraMain : MonoBehaviour
 
         void UpdateZ(ITween<Vector3> t)
         {
-            Vector3 newPos = t.CurrentValue;
-            transform.localPosition = newPos;
+            try
+            {
+                Vector3 newPos = t.CurrentValue;
+                transform.localPosition = newPos;
+            }
+            catch (Exception e)
+            {
+                //Console.WriteLine(e);
+                //throw;
+            }
+           
         }
 
         void FinishZoom(ITween t)
         {
             if (isSecondZoom)
             {
+                if (MenuBar.lifeCount == -1)
+                    return;
+                
                 player.Unfreeze();
                 return;
             }
