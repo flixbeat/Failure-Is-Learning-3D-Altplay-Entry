@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class CanvasUI : MonoBehaviour
 {
-
     [SerializeField] private Transform stuckPanel;
     [SerializeField] private MenuBar menuBar;
     [SerializeField] private GameOver gameOver;

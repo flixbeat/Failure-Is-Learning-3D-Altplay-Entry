@@ -10,6 +10,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float jumpUpwardForce = 5f;
     [SerializeField] private float jumpForwardForce = 3f;
     
+    public static readonly Vector3 SPAWN_POINT = new Vector3(0, 0.5f, 0);
+    
     private bool isActive;
     
     private Rigidbody rb;
@@ -36,7 +38,6 @@ public class Player : MonoBehaviour
         transform.Translate(Vector3.forward * Time.deltaTime * speed);
     }
 
-
     public void Jump()
     {
         if (allowJump)
@@ -47,7 +48,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    // collides with platform
+    // collides with platform and self
     private void OnCollisionEnter(Collision other)
     {
         allowJump = true;
@@ -55,10 +56,18 @@ public class Player : MonoBehaviour
     
     public void Out()
     {
-        isActive = false;
-        enabled = false;
-        Freeze();
-        CameraMain.zoomOut.Invoke();
+        // prevents getting called more than once when 2 or more spike were touched
+        if (enabled)
+        {
+            Freeze();
+            StartCoroutine(Reset());
+        }
+        
+        IEnumerator Reset()
+        {
+            yield return new WaitForSeconds(0.1f);
+            CameraMain.reset.Invoke();
+        }
     }
 
     public void Freeze()
@@ -70,19 +79,19 @@ public class Player : MonoBehaviour
     public void Unfreeze()
     {
         IsActive = true;
-        jump.enabled = true;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
     public void Reset()
     {
-        transform.position = Vector3.zero;
-        Unfreeze();
+        transform.position = SPAWN_POINT;
     }
 
     private void SetActive(bool value)
     {
         isActive = value;
+        jump.enabled = value;
         rb.useGravity = value;
+        enabled = value;
     }
 }

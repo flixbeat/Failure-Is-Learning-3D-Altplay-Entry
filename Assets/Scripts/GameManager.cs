@@ -12,8 +12,10 @@ public class GameManager : MonoBehaviour
     public static Action respawn;
 
     public static Action toTitleScreen;
+    
     public static Action playZoomSFX;
     public static Action resumeBGM;
+    public static Action stopBGM;
     
     public static bool changeLevel;
     
@@ -40,6 +42,7 @@ public class GameManager : MonoBehaviour
         toTitleScreen = BackToTitleScreen;
         playZoomSFX = PlayZoomSFX;
         resumeBGM = ResumeBGM;
+        stopBGM = StopBGM;
         playerScript = player.GetComponent<Player>();
     }
 
@@ -64,9 +67,8 @@ public class GameManager : MonoBehaviour
             canvasUI.DeductLife();
         
         // respawn
-        Transform playerInstance = Instantiate(this.player, Vector3.zero, Quaternion.identity).transform;
+        Transform playerInstance = Instantiate(this.player, Player.SPAWN_POINT, Quaternion.identity).transform;
         Player player = playerInstance.GetComponent<Player>();
-        player.enabled = true;
         player.Freeze();
         cameraMain.ChangeFocus(player);
         TouchArea.changeFocus.Invoke(player);
@@ -77,6 +79,7 @@ public class GameManager : MonoBehaviour
     public void ResetPlayer()
     {
         playerScript.Reset();
+        playerScript.Unfreeze();
         canvasUI.HideStuckPanel();
     }
 
@@ -105,11 +108,14 @@ public class GameManager : MonoBehaviour
             return;
 
         // check if z position is not moving
-        if (stuckTimePassed > 1)
+        if (stuckTimePassed > 1f)
         {
             int z = (int) player.transform.position.z;
             if (playerlastZ == z)
+            {
+                playerScript.Freeze();
                 canvasUI.ShowStuckPanel();
+            }
             
             playerlastZ = z;
             stuckTimePassed = 0;
@@ -174,6 +180,11 @@ public class GameManager : MonoBehaviour
     {
         bgm.Stop();
         zoom.Play();
+    }
+
+    public void StopBGM()
+    {
+        bgm.Stop();
     }
 
     public void ResumeBGM()
