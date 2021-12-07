@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour
         resumeBGM = ResumeBGM;
         stopBGM = StopBGM;
         playerScript = player.GetComponent<Player>();
+        SpawnCurrentLevel();
     }
 
     private void Respawn()
@@ -81,6 +82,27 @@ public class GameManager : MonoBehaviour
         playerScript.Reset();
         playerScript.Unfreeze();
         canvasUI.HideStuckPanel();
+    }
+
+    public void RestartLevel()
+    {
+        canvasUI.DisplayRestartButton(false);
+        
+        playerScript.Freeze();
+        inactivePlayers.Enqueue(player);
+        while (inactivePlayers.Count > 0)
+            Destroy(inactivePlayers.Dequeue());
+        
+        canvasUI.RestoreLife();
+        Respawn();
+        ResetPlayer();
+        StartCoroutine(ShowRestartButton());
+
+        IEnumerator ShowRestartButton()
+        {
+            yield return new WaitForSeconds(0.5f);
+            canvasUI.DisplayRestartButton(true);
+        }
     }
 
     private void InstantiateLevel(int levelIdx)
@@ -122,18 +144,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void SpawnCurrentLevel()
+    {
+        currentLevel = PlayerPrefs.HasKey("level") ? PlayerPrefs.GetInt("level") : 0; 
+        InstantiateLevel(currentLevel);
+    }
+
     private void StartGame()
     {
-        currentLevel = 0;
-        InstantiateLevel(currentLevel);
+        SaveLevel();
         Begin();
-
-        if (!PlayerPrefs.HasKey("level"))
-            SaveLevel();
     }
 
     private void LoadGame(int level)
     {
+        Destroy(this.level);
         currentLevel = level;
         InstantiateLevel(currentLevel);
         Begin();
@@ -191,5 +216,4 @@ public class GameManager : MonoBehaviour
     {
         bgm.Play();
     }
-
 }

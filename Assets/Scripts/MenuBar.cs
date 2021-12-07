@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MenuBar : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class MenuBar : MonoBehaviour
     
     [SerializeField] private Transform lifeContainer;
     [SerializeField] private Transform life;
+    [SerializeField] private Button btnRestart;
 
     private void OnEnable()
     {
@@ -45,5 +47,10 @@ public class MenuBar : MonoBehaviour
         }
         else
             GameManager.endGame.Invoke();
+    }
+
+    public void DisplayRestartButton(bool val)
+    {
+        btnRestart.gameObject.SetActive(val);
     }
 }

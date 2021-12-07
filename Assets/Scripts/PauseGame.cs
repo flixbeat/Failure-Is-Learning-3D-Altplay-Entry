@@ -29,9 +29,4 @@ public class PauseGame : MonoBehaviour
     {
         Hide();
     }
-
-    public void Quit()
-    {
-        Application.Quit();
-    }
 }

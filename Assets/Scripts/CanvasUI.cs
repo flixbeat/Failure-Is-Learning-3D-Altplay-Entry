@@ -68,4 +68,9 @@ public class CanvasUI : MonoBehaviour
     {
         pauseGame.Show();
     }
+
+    public void DisplayRestartButton(bool val)
+    {
+        menuBar.DisplayRestartButton(val);
+    }
 }

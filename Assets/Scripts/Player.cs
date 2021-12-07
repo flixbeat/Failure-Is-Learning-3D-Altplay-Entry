@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using DigitalRuby.Tween;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -9,6 +10,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpUpwardForce = 5f;
     [SerializeField] private float jumpForwardForce = 3f;
+    [SerializeField] private Transform mesh;
     
     public static readonly Vector3 SPAWN_POINT = new Vector3(0, 0.5f, 0);
     
@@ -16,6 +18,7 @@ public class Player : MonoBehaviour
     
     private Rigidbody rb;
     private AudioSource jump;
+    private BoxCollider collider;
     private bool allowJump;
 
     public bool IsActive
@@ -28,6 +31,7 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         jump = GetComponent<AudioSource>();
+        collider = GetComponent<BoxCollider>();
     }
 
     void Update()
@@ -43,14 +47,34 @@ public class Player : MonoBehaviour
         if (allowJump)
         {
             rb.AddForce(new Vector3(0, jumpUpwardForce, jumpForwardForce), ForceMode.Impulse);
-            allowJump = false;
+            RotateOnce();
             jump.Play();
+            allowJump = false;
         }
+    }
+
+    private void RotateOnce()
+    {
+        void Rotate(ITween<Quaternion> t)
+        {
+            if(mesh) mesh.gameObject.transform.rotation = t.CurrentValue;
+        }
+
+        void Finish(ITween t)
+        {
+            ResetRotation();
+        }
+        
+        Quaternion from = transform.rotation;
+        Quaternion to = Quaternion.Euler(new Vector3(0,180,0));
+        mesh.gameObject.Tween($"{mesh.gameObject.GetInstanceID()}_rotate", from, to, 1, TweenScaleFunctions.CubicEaseOut,
+            Rotate, Finish);
     }
 
     // collides with platform and self
     private void OnCollisionEnter(Collision other)
     {
+        
         allowJump = true;
     }
     
@@ -74,16 +98,19 @@ public class Player : MonoBehaviour
     {
         IsActive = false;
         rb.constraints = RigidbodyConstraints.FreezeAll;
+        ResetRotation();
     }
 
     public void Unfreeze()
     {
         IsActive = true;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
+        ResetRotation();
     }
 
     public void Reset()
     {
+        ResetRotation();
         transform.position = SPAWN_POINT;
     }
 
@@ -93,5 +120,10 @@ public class Player : MonoBehaviour
         jump.enabled = value;
         rb.useGravity = value;
         enabled = value;
+    }
+
+    private void ResetRotation()
+    {
+        if(mesh) mesh.transform.rotation = Quaternion.Euler(Vector3.zero);
     }
 }
