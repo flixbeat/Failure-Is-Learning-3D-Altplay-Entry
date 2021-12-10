@@ -64,8 +64,6 @@ public class GameManager : MonoBehaviour
             while(inactivePlayers.Count > 0)
                 Destroy(inactivePlayers.Dequeue());
         }
-        else
-            canvasUI.DeductLife();
         
         // respawn
         Transform playerInstance = Instantiate(this.player, Player.SPAWN_POINT, Quaternion.identity).transform;
@@ -82,20 +80,32 @@ public class GameManager : MonoBehaviour
         playerScript.Reset();
         playerScript.Unfreeze();
         canvasUI.HideStuckPanel();
+        stuckTimePassed = 0;
+        playerlastZ = 0;
     }
 
     public void RestartLevel()
     {
         canvasUI.DisplayRestartButton(false);
         
+        // remove inactives
         playerScript.Freeze();
         inactivePlayers.Enqueue(player);
         while (inactivePlayers.Count > 0)
             Destroy(inactivePlayers.Dequeue());
+
+        // restore coins
+        GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
+        foreach (GameObject coin in coins)
+        {
+            Coin coinScript = coin.GetComponent<Coin>();
+            coinScript.Enable();
+        }
         
-        canvasUI.RestoreLife();
+        // respawn
         Respawn();
         ResetPlayer();
+        canvasUI.RestoreLife();
         StartCoroutine(ShowRestartButton());
 
         IEnumerator ShowRestartButton()
@@ -115,6 +125,7 @@ public class GameManager : MonoBehaviour
         }
         
         level = Instantiate(levels[levelIdx], levels[levelIdx].transform.position, Quaternion.identity);
+        canvasUI.SetLevel(currentLevel + 1);
     }
 
     private void Update()
@@ -133,6 +144,7 @@ public class GameManager : MonoBehaviour
         if (stuckTimePassed > 1f)
         {
             int z = (int) player.transform.position.z;
+            
             if (playerlastZ == z)
             {
                 playerScript.Freeze();
@@ -193,6 +205,14 @@ public class GameManager : MonoBehaviour
         {
             PlayerPrefs.SetInt("level", currentLevel);
             PlayerPrefs.Save();
+        }
+    }
+    
+    void OnApplicationFocus(bool pauseStatus) 
+    {
+        if(!pauseStatus)
+        {
+            canvasUI.ShowPauseScreen();
         }
     }
 

@@ -73,4 +73,9 @@ public class CanvasUI : MonoBehaviour
     {
         menuBar.DisplayRestartButton(val);
     }
+    
+    public void SetLevel(int level)
+    {
+        menuBar.SetLevel(level);
+    }
 }

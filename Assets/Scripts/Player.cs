@@ -18,7 +18,6 @@ public class Player : MonoBehaviour
     
     private Rigidbody rb;
     private AudioSource jump;
-    private BoxCollider collider;
     private bool allowJump;
 
     public bool IsActive
@@ -31,7 +30,6 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         jump = GetComponent<AudioSource>();
-        collider = GetComponent<BoxCollider>();
     }
 
     void Update()
@@ -46,7 +44,7 @@ public class Player : MonoBehaviour
     {
         if (allowJump)
         {
-            rb.AddForce(new Vector3(0, jumpUpwardForce, jumpForwardForce), ForceMode.Impulse);
+            rb.AddForce(new Vector3(0, jumpUpwardForce, jumpForwardForce), ForceMode.VelocityChange);
             RotateOnce();
             jump.Play();
             allowJump = false;
@@ -66,7 +64,7 @@ public class Player : MonoBehaviour
         }
         
         Quaternion from = transform.rotation;
-        Quaternion to = Quaternion.Euler(new Vector3(0,180,0));
+        Quaternion to = Quaternion.Euler(new Vector3(90,0,0));
         mesh.gameObject.Tween($"{mesh.gameObject.GetInstanceID()}_rotate", from, to, 1, TweenScaleFunctions.CubicEaseOut,
             Rotate, Finish);
     }
@@ -84,12 +82,6 @@ public class Player : MonoBehaviour
         if (enabled)
         {
             Freeze();
-            StartCoroutine(Reset());
-        }
-        
-        IEnumerator Reset()
-        {
-            yield return new WaitForSeconds(0.1f);
             CameraMain.reset.Invoke();
         }
     }
@@ -97,6 +89,7 @@ public class Player : MonoBehaviour
     public void Freeze()
     {
         IsActive = false;
+        rb.isKinematic = true;
         rb.constraints = RigidbodyConstraints.FreezeAll;
         ResetRotation();
     }
@@ -104,6 +97,7 @@ public class Player : MonoBehaviour
     public void Unfreeze()
     {
         IsActive = true;
+        rb.isKinematic = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         ResetRotation();
     }

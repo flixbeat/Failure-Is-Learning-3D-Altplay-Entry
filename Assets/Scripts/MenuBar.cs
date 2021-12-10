@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DigitalRuby.Tween;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,10 +14,16 @@ public class MenuBar : MonoBehaviour
     [SerializeField] private Transform lifeContainer;
     [SerializeField] private Transform life;
     [SerializeField] private Button btnRestart;
-
+    [SerializeField] private TextMeshProUGUI level;
+    
     private void OnEnable()
     {
         lifeCount = 0;
+    }
+
+    public void SetLevel(int level)
+    {
+        this.level.text = $"Level: {level}";
     }
     
     private void OnDisable()

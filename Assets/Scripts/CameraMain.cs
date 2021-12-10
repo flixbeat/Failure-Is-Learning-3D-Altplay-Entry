@@ -41,7 +41,7 @@ public class CameraMain : MonoBehaviour
         {
             if (MenuBar.lifeCount == -1)
                 return;
-                
+            
             player.Unfreeze();
             TouchArea.setActive.Invoke(true);
             GameManager.resumeBGM.Invoke();
@@ -50,7 +50,7 @@ public class CameraMain : MonoBehaviour
         Vector3 startPos = transform.position;
         Vector3 endPos = initialPos;
         
-        gameObject.Tween($"{gameObject.GetInstanceID()}_reset", startPos, endPos, 1f, TweenScaleFunctions.CubicEaseInOut, UpdatePos, Finish);
+        gameObject.Tween($"{gameObject.GetInstanceID()}_reset", startPos, endPos, 0.3f, TweenScaleFunctions.CubicEaseInOut, UpdatePos, Finish);
         
         TouchArea.setActive.Invoke(false);
         GameManager.stopBGM.Invoke();
